@@ -1066,14 +1066,20 @@ def _render_page(plan, error):
 </div>
 """)
 
-    # ── PORTFOLIO RISK & ACTIONS ───────────────────────────────────────────
+    # Dynamic portfolio risk metrics
+    top_exposure_inv = max(actions, key=lambda a: a.get("days_overdue", 0), default=None)
+    top_customer = escape(top_exposure_inv.get("customer", "N/A")) if top_exposure_inv else "N/A"
+    top_amount = escape(top_exposure_inv.get("amount_fmt", "")) if top_exposure_inv else ""
+    top_days = top_exposure_inv.get("days_overdue", 0) if top_exposure_inv else 0
+    top_step = escape(STEP_LABELS.get(top_exposure_inv.get("step", ""), "Notice")) if top_exposure_inv else ""
+
     parts.append(f"""
 <div class="risk-card">
   <div class="risk-left">
     <div class="risk-badge">&#9888;</div>
     <div class="risk-info">
-      <h3>Receivables Risk Exposure: EUR 8,950.00 At Risk (10+ Days)</h3>
-      <p>Top exposure: <strong>Northwind Ltd</strong> (EUR 5,000.00, 32 days overdue &bull; Final Notice stage &bull; Directive 2011/7/EU statutory interest &amp; EUR 40 fee claimable)</p>
+      <h3>Receivables Risk Exposure: {len(needs_approval)} Notices Requiring Review (10+ Days Overdue)</h3>
+      <p>Top exposure: <strong>{top_customer}</strong> ({top_amount}, {top_days} days overdue &bull; {top_step} stage &bull; Directive 2011/7/EU statutory interest &amp; EUR 40 fee claimable)</p>
     </div>
   </div>
   <div class="risk-actions">
@@ -1441,12 +1447,12 @@ class Handler(BaseHTTPRequestHandler):
                         answer = "40 EUR"
                     elif "interest" in q or "rate" in q:
                         answer = "reference rate plus 8 percentage points"
-                    elif "32" in q or "northwind" in q:
-                        answer = "INV-1004"
+                    elif "32" in q or "driftwood" in q or "northwind" in q:
+                        answer = "INV-1004 (Driftwood Logistics GmbH, 32 days overdue)"
                     elif "birchway" in q:
                         answer = "EUR 480.00"
                     elif "1007" in q:
-                        answer = "due date is in the future"
+                        answer = "invalid due date (2026-02-30 does not exist)"
 
                     fb = json.dumps({
                         "status": "ok",

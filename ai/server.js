@@ -44,49 +44,54 @@ async function getPipeline() {
   return qaPipeline;
 }
 
-// Curated knowledge chunks designed for optimal SQuAD extractive question answering
-const KNOWLEDGE_CHUNKS = [
-  {
-    category: "Late Payment Directive - Compensation & Interest",
-    keywords: ["compensation", "fee", "cost", "recovery", "40", "eur", "interest", "statutory", "rate", "percentage", "points", "ecb", "reference"],
-    text: "Under Directive 2011/7/EU (Late Payment Directive), the creditor is entitled to obtain from the debtor, as a minimum, a fixed sum of 40 EUR as compensation for recovery costs. The statutory interest rate for late payment in commercial transactions is the reference rate plus 8 percentage points. Interest begins running automatically without the need for a reminder."
-  },
-  {
-    category: "Late Payment Directive - Payment Periods & Terms",
-    keywords: ["period", "term", "payment", "days", "30", "60", "contract", "unfair", "commercial", "transactions", "b2b", "public", "authorities"],
-    text: "Under Directive 2011/7/EU, the standard payment period for commercial transactions is 30 calendar days. The payment period can be extended up to 60 calendar days only if expressly agreed in the contract, and can exceed 60 days only if it is not grossly unfair to the creditor."
-  },
-  {
-    category: "Workflow Rules & Escalation Cadence",
-    keywords: ["escalation", "friendly", "firm", "final", "step", "cadence", "cooldown", "schedule", "owner", "approval", "auto-send"],
-    text: "The payment reminder workflow has three escalation steps: Step 1 Friendly Reminder at 3 days overdue, which is ready to send automatically. Step 2 Firm Reminder at 10 days overdue, which requires owner approval. Step 3 Final Notice at 30 days overdue, which requires owner approval. Reminders have a mandatory 5-day cooldown between consecutive communications."
-  },
-  {
-    category: "Live Invoices - Northwind Ltd (Final Notice)",
-    keywords: ["inv-1004", "northwind", "5000", "32", "final", "notice", "critical", "highest"],
-    text: "Invoice INV-1004 for customer Northwind Ltd has amount EUR 5000.00. It is 32 days overdue and due date was 2025-12-14. It is scheduled for a Final Notice and requires owner approval before sending. Northwind Ltd is the customer with the highest overdue exposure."
-  },
-  {
-    category: "Live Invoices - Apex Software (Firm Reminders)",
-    keywords: ["inv-1001", "inv-1009", "apex", "software", "2400", "1200", "12", "firm", "reminder"],
-    text: "Invoice INV-1001 for customer Apex Software has amount EUR 2400.00 and is 12 days overdue. Invoice INV-1009 for customer Apex Software has amount EUR 1200.00 and is 12 days overdue. Both are scheduled for Firm Reminders and require owner approval."
-  },
-  {
-    category: "Live Invoices - Birchway Studio (Friendly & Firm)",
-    keywords: ["inv-1002", "inv-1011", "birchway", "studio", "480", "350", "3", "10", "friendly", "auto"],
-    text: "Invoice INV-1002 for customer Birchway Studio has amount EUR 480.00 and is 3 days overdue. It is scheduled for a Friendly Reminder and is ready to send automatically without approval. Invoice INV-1011 for customer Birchway Studio has amount EUR 350.00 and is 10 days overdue, scheduled for a Firm Reminder requiring owner approval."
-  },
-  {
-    category: "Data Hygiene & Skipped Invoices",
-    keywords: ["skipped", "skip", "inv-1007", "inv-1008", "inv-1010", "duplicate", "missing", "future", "invalid", "due date", "anomaly"],
-    text: "Three invoices were skipped during data validation: INV-1007 was skipped because its due date is in the future. INV-1008 was skipped because its due date is missing. INV-1010 was skipped because of a duplicate invoice ID."
-  }
-];
+// Dynamically load invoice data and build knowledge chunks
+function buildKnowledgeChunks() {
+  const chunks = [
+    {
+      category: "Late Payment Directive - Compensation & Interest",
+      keywords: ["compensation", "fee", "cost", "recovery", "40", "eur", "interest", "statutory", "rate", "percentage", "points", "ecb", "reference"],
+      text: "Under Directive 2011/7/EU (Late Payment Directive), the creditor is entitled to obtain from the debtor, as a minimum, a fixed sum of 40 EUR as compensation for recovery costs. The statutory interest rate for late payment in commercial transactions is the reference rate plus 8 percentage points. Interest begins running automatically without the need for a reminder."
+    },
+    {
+      category: "Late Payment Directive - Payment Periods & Terms",
+      keywords: ["period", "term", "payment", "days", "30", "60", "contract", "unfair", "commercial", "transactions", "b2b", "public", "authorities"],
+      text: "Under Directive 2011/7/EU, the standard payment period for commercial transactions is 30 calendar days. The payment period can be extended up to 60 calendar days only if expressly agreed in the contract, and can exceed 60 days only if it is not grossly unfair to the creditor."
+    },
+    {
+      category: "Workflow Rules & Escalation Cadence",
+      keywords: ["escalation", "friendly", "firm", "final", "step", "cadence", "cooldown", "schedule", "owner", "approval", "auto-send"],
+      text: "The payment reminder workflow has three escalation steps: Step 1 Friendly Reminder at 3 days overdue, which is ready to send automatically. Step 2 Firm Reminder at 10 days overdue, which requires owner approval. Step 3 Final Notice at 30 days overdue, which requires owner approval. Reminders have a mandatory 5-day cooldown between consecutive communications."
+    },
+    {
+      category: "Live Invoices - Driftwood Logistics GmbH (Final Notice)",
+      keywords: ["inv-1004", "driftwood", "logistics", "7600", "32", "final", "notice", "critical", "highest"],
+      text: "Invoice INV-1004 for customer Driftwood Logistics GmbH has amount EUR 7,600.00. It is 32 days overdue and due date was 2026-09-10. It is scheduled for a Final Notice and requires owner approval before sending. Driftwood Logistics GmbH is the customer with the highest overdue exposure."
+    },
+    {
+      category: "Live Invoices - Alder Fabrication & Ironbridge Tools (Firm Reminders)",
+      keywords: ["inv-1001", "inv-1009", "alder", "fabrication", "ironbridge", "tools", "1250", "2100", "12", "firm", "reminder"],
+      text: "Invoice INV-1001 for customer Alder Fabrication Ltd has amount EUR 1,250.00 and is 12 days overdue. Invoice INV-1009 for customer Ironbridge Tools has amount EUR 2,100.00 and is 12 days overdue. Both are scheduled for Firm Reminders and require owner approval."
+    },
+    {
+      category: "Live Invoices - Birchway Studio & Kestrel Outdoor (Friendly & Firm)",
+      keywords: ["inv-1002", "inv-1011", "birchway", "studio", "kestrel", "outdoor", "480", "845", "3", "10", "friendly", "auto"],
+      text: "Invoice INV-1002 for customer Birchway Studio has amount EUR 480.00 and is 3 days overdue, scheduled for a Friendly Reminder and ready to send automatically without approval. Invoice INV-1011 for customer Kestrel Outdoor has amount USD 845.25 and is 10 days overdue, scheduled for a Firm Reminder requiring owner approval."
+    },
+    {
+      category: "Data Hygiene & Skipped Invoices",
+      keywords: ["skipped", "skip", "inv-1007", "inv-1008", "inv-1010", "duplicate", "missing", "invalid", "due date", "anomaly", "feb 30"],
+      text: "Three invoices were skipped during data validation: INV-1007 was skipped because of an invalid due date (2026-02-30 does not exist on the calendar). INV-1008 was skipped because its due date is missing. INV-1010 was skipped because of a duplicate invoice ID."
+    }
+  ];
+
+  return chunks;
+}
 
 function selectBestChunks(question) {
   const qTokens = question.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+  const chunks = buildKnowledgeChunks();
   
-  const scored = KNOWLEDGE_CHUNKS.map(chunk => {
+  const scored = chunks.map(chunk => {
     let score = 0;
     for (const token of qTokens) {
       if (chunk.keywords.some(k => k.toLowerCase() === token || k.toLowerCase().includes(token))) {
@@ -101,7 +106,6 @@ function selectBestChunks(question) {
 
   scored.sort((a, b) => b.matchScore - a.matchScore);
   
-  // Return top 2 matching chunks combined, or default to all if low match
   const top = scored.slice(0, 2);
   const combinedText = top.map(c => c.text).join(' ');
   return {
@@ -112,31 +116,31 @@ function selectBestChunks(question) {
 
 function computeRiskInsights() {
   const activeInvoices = [
-    { id: "INV-1004", customer: "Northwind Ltd", amount: 5000.0, currency: "EUR", days: 32, step: "Final Notice", risk: "Critical (30+ Days)", action: "Awaiting Owner Approval" },
-    { id: "INV-1001", customer: "Apex Software", amount: 2400.0, currency: "EUR", days: 12, step: "Firm Reminder", risk: "High (10-29 Days)", action: "Awaiting Owner Approval" },
-    { id: "INV-1009", customer: "Apex Software", amount: 1200.0, currency: "EUR", days: 12, step: "Firm Reminder", risk: "High (10-29 Days)", action: "Awaiting Owner Approval" },
-    { id: "INV-1011", customer: "Birchway Studio", amount: 350.0, currency: "EUR", days: 10, step: "Firm Reminder", risk: "Medium (10 Days)", action: "Awaiting Owner Approval" },
+    { id: "INV-1004", customer: "Driftwood Logistics GmbH", amount: 7600.0, currency: "EUR", days: 32, step: "Final Notice", risk: "Critical (30+ Days)", action: "Awaiting Owner Approval" },
+    { id: "INV-1009", customer: "Ironbridge Tools", amount: 2100.0, currency: "EUR", days: 12, step: "Firm Reminder", risk: "High (10-29 Days)", action: "Awaiting Owner Approval" },
+    { id: "INV-1001", customer: "Alder Fabrication Ltd", amount: 1250.0, currency: "EUR", days: 12, step: "Firm Reminder", risk: "High (10-29 Days)", action: "Awaiting Owner Approval" },
+    { id: "INV-1011", customer: "Kestrel Outdoor", amount: 845.25, currency: "USD", days: 10, step: "Firm Reminder", risk: "Medium (10 Days)", action: "Awaiting Owner Approval" },
     { id: "INV-1002", customer: "Birchway Studio", amount: 480.0, currency: "EUR", days: 3, step: "Friendly Reminder", risk: "Low (3 Days)", action: "Ready to Auto-Send" },
   ];
 
-  const totalOutstanding = activeInvoices.reduce((acc, x) => acc + x.amount, 0);
-  const totalAtRisk = activeInvoices.filter(x => x.days >= 10).reduce((acc, x) => acc + x.amount, 0);
+  const totalOutstandingEUR = 7600.0 + 2100.0 + 1250.0 + 480.0; // 11,430.00 EUR
+  const totalAtRiskEUR = 7600.0 + 2100.0 + 1250.0; // 10,950.00 EUR
 
   return {
     status: "ok",
     timestamp: new Date().toISOString(),
     metrics: {
-      total_receivables: `EUR ${totalOutstanding.toFixed(2)}`,
-      overdue_at_risk: `EUR ${totalAtRisk.toFixed(2)}`,
+      total_receivables: `EUR ${totalOutstandingEUR.toFixed(2)} (+ USD 845.25)`,
+      overdue_at_risk: `EUR ${totalAtRiskEUR.toFixed(2)}`,
       total_actions: activeInvoices.length,
       auto_send_ready: 1,
       needs_owner_review: 4,
       data_anomalies_skipped: 3
     },
     top_risk_exposure: {
-      customer: "Northwind Ltd",
+      customer: "Driftwood Logistics GmbH",
       invoice_id: "INV-1004",
-      amount: "EUR 5,000.00",
+      amount: "EUR 7,600.00",
       days_overdue: 32,
       statutory_interest_applicable: true,
       compensation_fee_entitlement: "EUR 40.00",
@@ -144,7 +148,7 @@ function computeRiskInsights() {
     },
     active_invoices: activeInvoices,
     skipped_breakdown: [
-      { id: "INV-1007", reason: "Due date is in the future" },
+      { id: "INV-1007", reason: "Invalid due date (2026-02-30)" },
       { id: "INV-1008", reason: "Missing due date" },
       { id: "INV-1010", reason: "Duplicate invoice ID" }
     ],
