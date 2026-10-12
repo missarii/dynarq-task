@@ -13,8 +13,9 @@ An intelligent daily accounts receivable and payment-reminder platform designed 
 
 - [How to Run Locally](#how-to-run-locally)
   - [Prerequisites](#prerequisites)
-  - [Option A: One-Command Start (Recommended)](#option-a-one-command-start-recommended)
-  - [Option B: Step-by-Step Setup](#option-b-step-by-step-setup)
+  - [Option 1: One-Click Launcher (Easiest)](#option-1-one-click-launcher-easiest)
+  - [Option 2: Run via Python (Auto-spawns AI service)](#option-2-run-via-python-auto-spawns-ai-service)
+  - [Option 3: Step-by-Step Setup](#option-3-step-by-step-setup)
   - [Running Unit Tests](#running-unit-tests)
   - [Running Rules Engine CLI](#running-rules-engine-cli)
 - [System Architecture](#system-architecture)
@@ -35,33 +36,38 @@ An intelligent daily accounts receivable and payment-reminder platform designed 
 
 ---
 
-### Option A: One-Command Start (Recommended)
+### Option 1: One-Click Launcher (Easiest)
 
-1. Clone or navigate to the repository directory:
-   ```bash
-   cd dynarq-task
-   ```
+Run the included launcher script from the project root:
 
-2. Install Node.js AI dependencies once:
-   ```bash
-   cd ai
-   npm install
-   cd ..
-   ```
+```bash
+./run.sh
+# or
+./start.run
+```
 
-3. Launch the application:
-   ```bash
-   cd python
-   python app.py
-   ```
-   > **Note:** `app.py` automatically detects if the Node.js AI microservice is running. If not, it spawns `node server.js` in the background automatically!
-
-4. Open your browser and go to:
-   👉 **`http://localhost:8000/`**
+This single command:
+1. Verifies Python 3 and Node.js environments.
+2. Auto-installs `@xenova/transformers` in `ai/` if not already installed.
+3. Clears any stale port conflicts on `8000` and `8001`.
+4. Starts the Node.js Local AI Engine on `http://127.0.0.1:8001/`.
+5. Starts the Python Web Dashboard on `http://localhost:8000/`.
+6. Automatically opens `http://localhost:8000/` in your default web browser!
+7. Cleanly shuts down all background processes when you press `CTRL + C`.
 
 ---
 
-### Option B: Step-by-Step Setup (Virtual Environment & Explicit Services)
+### Option 2: Run via Python (Auto-spawns AI service)
+
+```bash
+cd python
+python app.py
+```
+> `app.py` automatically detects if the Node.js AI microservice is running. If not, it spawns `node server.js` in the background automatically! Open `http://localhost:8000/` in your browser.
+
+---
+
+### Option 3: Step-by-Step Setup (Virtual Environment & Explicit Services)
 
 If you prefer using a Python virtual environment and running each service in its own terminal:
 
