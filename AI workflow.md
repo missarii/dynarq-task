@@ -185,28 +185,42 @@ Verifies AI microservice status, model initialization, and runtime environment.
 
 ---
 
-## 7. Running & Testing the AI Service
+## 7. How to Run & Verify Locally
 
-### Starting Services
-Both services run simultaneously:
+### Quick Start (Single Command)
+1. Install Node.js dependencies once:
+   ```bash
+   cd ai && npm install && cd ..
+   ```
+2. Start the application:
+   ```bash
+   cd python && python app.py
+   ```
+   *The Python server automatically checks for the AI service on port 8001 and spawns it in the background if needed!*
+
+### Running Services Separately
 ```bash
-# 1. Start the Node.js AI service (port 8001)
+# Terminal 1: Node.js AI Microservice
 cd ai
 npm start
+# Listening on http://127.0.0.1:8001
 
-# 2. In another terminal, start the Python dashboard (port 8000)
+# Terminal 2: Python Web Server
 cd python
 python app.py
+# Listening on http://localhost:8000
 ```
-*(Note: `python app.py` also automatically verifies and spawns the AI microservice if it is not already running!)*
 
-### Automated Verification via cURL
+### Verifying via cURL
 ```bash
-# Check Health
+# Check AI Health
 curl -s http://localhost:8000/api/ai/health
 
-# Ask a question
+# Test Question Answering
 curl -s -X POST http://localhost:8000/api/ai/ask \
   -H "Content-Type: application/json" \
   -d '{"question": "What is the compensation fee for recovery costs?"}'
+
+# Expected response:
+# {"status":"ok","question":"...","answer":"40 eur","score":0.916,...}
 ```
